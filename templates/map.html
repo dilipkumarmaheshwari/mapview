@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Draggable Marker Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <style>
+    #map {
+      height: 600px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script>
+    const map = L.map("map").setView([12.9716, 77.5946], 15);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors",
+    }).addTo(map);
+
+    let marker = L.marker([12.9716, 77.5640], { draggable: true }).addTo(map);
+
+    function sendData(lat, lng) {
+      const streamlitEvents = window.parent;
+      streamlitEvents.postMessage({ isStreamlitMessage: true, type: "streamlit:setComponentValue", value: { lat, lng } }, "*");
+    }
+
+    marker.on("dragend", function (e) {
+      const latlng = marker.getLatLng();
+      sendData(latlng.lat, latlng.lng);
+    });
+
+    // Send initial position
+    sendData(marker.getLatLng().lat, marker.getLatLng().lng);
+  </script>
+</body>
+</html>
